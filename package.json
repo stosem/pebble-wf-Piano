@@ -1,0 +1,85 @@
+{
+    "author": "stosem",
+    "dependencies": {
+        "pebble-clay": "^1.0.4"
+    },
+    "keywords": [],
+    "name": "Piano",
+    "description": "Piano",
+    "license": "GPL-3.0",
+    "repository": {
+    	"type": "git",
+    	"url": "git://github.com/stosem/pebble-wf-Piano.git"
+  	},
+  	"keywords": [
+    	"clock",
+    	"watchface",
+		"minimal",
+		"quiettime",
+        "bluettooth"
+  	],
+  	"bugs": {
+    "url": "https://github.com/stosem/pebble-wf-Piano/issues"
+  	},
+	"homepage": "https://github.com/stosem/pebble-wf-Piano",
+    "pebble": {
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "Piano",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "KEY_VIBRATE_ON_BT_LOST",
+            "KEY_BATTERY_WARNING",
+            "KEY_VIBRATE_INTERVAL"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/menu_icon.png",
+                    "menuIcon": true,
+                    "name": "menu_icon",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/quiet.png",
+                    "name": "ICON_QUIET",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/power.png",
+                    "name": "ICON_CHARGING",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/bluetooth.png",
+                    "name": "ICON_BT",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/battery.png",
+                    "name": "ICON_BAT",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+                       ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "cf7606fb-5a6e-4e0f-ba97-f0b7641b884c",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.0.0"
+}
