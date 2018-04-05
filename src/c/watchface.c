@@ -6,7 +6,7 @@
 #include <pebble.h>
 #include "watchface.h"
 static Window *s_main_window, *s_sec_window;
-static Layer *s_main_layer, *s_status_layer;
+static Layer *s_main_layer;
 static BitmapLayer *s_bluetooth_bitmap_layer, *s_charging_bitmap_layer, *s_battery_bitmap_layer, *s_quiet_bitmap_layer;
 static GBitmap *s_bluetooth_bitmap=NULL, *s_charging_bitmap=NULL, *s_battery_bitmap=NULL, *s_quiet_bitmap=NULL;
 static ClaySettings settings; // An instance of the struct
@@ -299,6 +299,7 @@ static void main_window_unload(Window *window) {
   if( s_battery_bitmap_layer ) { bitmap_layer_destroy( s_battery_bitmap_layer ); s_battery_bitmap_layer=NULL; };
   if( s_bluetooth_bitmap_layer ) { bitmap_layer_destroy( s_bluetooth_bitmap_layer ); s_bluetooth_bitmap_layer=NULL; };
   if( s_charging_bitmap_layer ) { bitmap_layer_destroy( s_charging_bitmap_layer ); s_charging_bitmap_layer=NULL; };
+  if( s_quiet_bitmap_layer ) { bitmap_layer_destroy( s_quiet_bitmap_layer ); s_quiet_bitmap_layer=NULL; };
   layer_destroy( s_main_layer ); 
   LOG( "end main window unload" );
 };
