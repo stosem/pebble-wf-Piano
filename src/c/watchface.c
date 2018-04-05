@@ -21,6 +21,8 @@ static void config_clear() {
   settings.BatteryWarning = 30;
   settings.VibrateInterval = OFF;
   settings.VibrateOnBTLost = true;
+  LOG(" config clear warning=%d, vinterval=%d, vonlost=%s", settings.BatteryWarning, 
+          settings.VibrateInterval, settings.VibrateOnBTLost?"true":"false" );
 };
 
 
@@ -30,7 +32,8 @@ static void config_clear() {
 static void config_load() {
   // Read settings from persistent storage, if they exist
   persist_read_data( SETTINGS_KEY, &settings, sizeof(settings) );	
-  LOG( "config loaded " );
+  LOG(" config loaded warning=%d, vinterval=%d, vonlost=%s", settings.BatteryWarning, 
+          settings.VibrateInterval, settings.VibrateOnBTLost?"true":"false" );
 };
 
 
@@ -197,18 +200,24 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
  
   // vibrate on bt lost
   Tuple *vibrate_on_bt_lost_t = dict_find(iterator, MESSAGE_KEY_KEY_VIBRATE_ON_BT_LOST);
-  if(vibrate_on_bt_lost_t) { settings.VibrateOnBTLost = vibrate_on_bt_lost_t->value->int32 == 1; }
+  if(vibrate_on_bt_lost_t) { 
+      settings.VibrateOnBTLost = vibrate_on_bt_lost_t->value->int32 == 1; 
+      LOG( "set Vibrate onbtlost=%s", settings.VibrateOnBTLost?"true":"false" );
+  }
 
   // vibrate interval
   Tuple *vibrate_interval_t = dict_find(iterator, MESSAGE_KEY_KEY_VIBRATE_INTERVAL);
   if(vibrate_interval_t) { 
       settings.VibrateInterval = atoi(vibrate_interval_t->value->cstring);
-  LOG( "set Vibrate interval=%d", settings.VibrateInterval );
+      LOG( "set Vibrate interval=%d", settings.VibrateInterval );
   }
 
   // battery warinig level
   Tuple *battery_warning_t = dict_find(iterator, MESSAGE_KEY_KEY_BATTERY_WARNING);
-  if(battery_warning_t) { settings.BatteryWarning = atoi(battery_warning_t->value->cstring); }
+  if(battery_warning_t) { 
+      settings.BatteryWarning = battery_warning_t->value->int32; 
+     LOG( "set battery warning=%d", settings.BatteryWarning );
+  }
  
     status.changed = true;
     layer_mark_dirty( s_main_layer );

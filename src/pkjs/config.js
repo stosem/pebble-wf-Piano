@@ -61,11 +61,11 @@ module.exports = [
 			{
   				"type": "slider",
   				"messageKey": "KEY_BATTERY_WARNING",
-  				"defaultValue": 30,
+  				"defaultValue": "30",
   				"label": "Battery warning level (%)",
-  				"min": 0,
-  				"max": 50,
-  				"step": 10
+  				"min": "0",
+  				"max": "50",
+  				"step": "10"
 			}
         ]
     },
