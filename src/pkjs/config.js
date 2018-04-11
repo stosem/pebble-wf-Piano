@@ -58,6 +58,12 @@ module.exports = [
 				"type": "heading",
 				"defaultValue": "Other Settings"
 			},
+    		{
+				"type": "toggle",
+				"messageKey": "KEY_SHOW_NOTE",
+				"label": "Show notes",
+				"defaultValue": false
+			},
 			{
   				"type": "slider",
   				"messageKey": "KEY_BATTERY_WARNING",

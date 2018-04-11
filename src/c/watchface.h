@@ -5,6 +5,9 @@
 //#define DEBUG 1
 //#define DEMO 1
 
+// font
+#define NOTE_FONT RESOURCE_ID_NOTE_FONT_30
+
 // persistent storage keys
 #define SETTINGS_KEY 1
 
@@ -24,6 +27,7 @@
 ///////////////////
 typedef struct ClaySettings {
   bool VibrateOnBTLost;
+  bool ShowNote;
   uint8_t BatteryWarning;
   uint16_t  VibrateInterval;
 } ClaySettings; // Define our settings struct

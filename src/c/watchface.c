@@ -5,12 +5,19 @@
 
 #include <pebble.h>
 #include "watchface.h"
-static Window *s_main_window, *s_sec_window;
+static Window *s_main_window;
 static Layer *s_main_layer;
+static TextLayer *s_note_text_layer;
+static GFont s_note_font;
 static BitmapLayer *s_bluetooth_bitmap_layer, *s_charging_bitmap_layer, *s_battery_bitmap_layer, *s_quiet_bitmap_layer;
 static GBitmap *s_bluetooth_bitmap=NULL, *s_charging_bitmap=NULL, *s_battery_bitmap=NULL, *s_quiet_bitmap=NULL;
 static ClaySettings settings; // An instance of the struct
 static Status status;
+
+static char a_note[]="=RSTUVWXYZ";   // white key note number (see font ttf)
+static char a_note_d[]="=RSUVWXYZ";  // black key note number
+static char a_diese[]="=rsuvwxyz"; 
+static char sbuff[64];
 
 // MAIN
 
@@ -21,6 +28,7 @@ static void config_clear() {
   settings.BatteryWarning = 30;
   settings.VibrateInterval = OFF;
   settings.VibrateOnBTLost = true;
+  settings.ShowNote = false;
   LOG(" config clear warning=%d, vinterval=%d, vonlost=%s", settings.BatteryWarning, 
           settings.VibrateInterval, settings.VibrateOnBTLost?"true":"false" );
 };
@@ -98,8 +106,23 @@ static void update_proc_main(Layer *layer, GContext *ctx) {
   time_t t = time( NULL );
   struct tm *tick = localtime( &t );
   LOG ( "Hour digits: %d and %d ", t1(tick->tm_hour), t2(tick->tm_hour) );
-  draw_piano_roll( ctx, 28, tick->tm_hour ); 
-  draw_piano_roll( ctx, 100, tick->tm_min ); 
+#ifdef DEMO
+  settings.ShowNote = true;
+#endif
+
+  // draw piano
+  draw_piano_roll( ctx, settings.ShowNote?48:28, tick->tm_hour ); 
+  draw_piano_roll( ctx, settings.ShowNote?110:100, tick->tm_min ); 
+  // draw text notes
+  strcpy( sbuff, "" );
+  if ( settings.ShowNote ) {
+      snprintf( sbuff, sizeof( sbuff ), "&%c%c%c=%c%c%c",
+              a_diese[t1(tick->tm_hour)], a_note_d[t1(tick->tm_hour)], a_note[t2(tick->tm_hour)],
+              a_diese[t1(tick->tm_min)], a_note_d[t1(tick->tm_min)], a_note[t2(tick->tm_min)] ) ;
+  };
+  LOG( "Notes buff=%s", sbuff );
+  text_layer_set_text( s_note_text_layer, sbuff );
+
   status.is_quiet_time = quiet_time_is_active();  
 #ifdef DEMO
   status.is_quiet_time = true; 
@@ -203,7 +226,15 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   if(vibrate_on_bt_lost_t) { 
       settings.VibrateOnBTLost = vibrate_on_bt_lost_t->value->int32 == 1; 
       LOG( "set Vibrate onbtlost=%s", settings.VibrateOnBTLost?"true":"false" );
+  };
+
+  // show note
+  Tuple *show_note_t = dict_find( iterator, MESSAGE_KEY_KEY_SHOW_NOTE );
+  if(show_note_t) { 
+      settings.ShowNote = show_note_t->value->int32 == 1; 
+      LOG( "set Show note=%s", settings.ShowNote?"true":"false" );
   }
+
 
   // vibrate interval
   Tuple *vibrate_interval_t = dict_find(iterator, MESSAGE_KEY_KEY_VIBRATE_INTERVAL);
@@ -257,28 +288,38 @@ static void main_window_load(Window *window) {
   layer_set_update_proc( s_main_layer, update_proc_main );
   layer_add_child( window_layer, s_main_layer );  
  
+  s_note_font = fonts_load_custom_font( resource_get_handle(NOTE_FONT) );
+  s_note_text_layer = text_layer_create( GRect(PBL_IF_ROUND_ELSE(50, 30), PBL_IF_ROUND_ELSE(2, 2), 80, 44));
+  text_layer_set_background_color( s_note_text_layer, GColorClear ); // xxx
+  text_layer_set_text_color( s_note_text_layer, GColorWhite );
+  text_layer_set_text_alignment( s_note_text_layer, GTextAlignmentCenter );
+  text_layer_set_font( s_note_text_layer, s_note_font );
+  layer_add_child( s_main_layer, text_layer_get_layer(s_note_text_layer) );  
+
+
+
   // create status icons
   // bluetooth
   s_bluetooth_bitmap=gbitmap_create_with_resource( RESOURCE_ID_ICON_BT );
-  s_bluetooth_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(68, 0), PBL_IF_ROUND_ELSE(8, 4), 18, 18));
+  s_bluetooth_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(0, 0), PBL_IF_ROUND_ELSE(80, 4), 18, 18));
   bitmap_layer_set_compositing_mode( s_bluetooth_bitmap_layer, GCompOpSet );
   bitmap_layer_set_bitmap( s_bluetooth_bitmap_layer, s_bluetooth_bitmap ); 
   layer_add_child( s_main_layer, bitmap_layer_get_layer(s_bluetooth_bitmap_layer) );       
   // quiettime icon
   s_quiet_bitmap=gbitmap_create_with_resource( RESOURCE_ID_ICON_QUIET );
-  s_quiet_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(80, 12), PBL_IF_ROUND_ELSE(4, 2), 18, 18));
+  s_quiet_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(0, 12), PBL_IF_ROUND_ELSE(100, 2), 18, 18));
   bitmap_layer_set_compositing_mode(s_quiet_bitmap_layer, GCompOpSet );
   bitmap_layer_set_bitmap( s_quiet_bitmap_layer, s_quiet_bitmap ); 
   layer_add_child(s_main_layer, bitmap_layer_get_layer(s_quiet_bitmap_layer));    
   // charging icon 
   s_charging_bitmap=gbitmap_create_with_resource( RESOURCE_ID_ICON_CHARGING );
-  s_charging_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(80, 120), PBL_IF_ROUND_ELSE(160, 4), 18, 18));
+  s_charging_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(160, 120), PBL_IF_ROUND_ELSE(80, 4), 18, 18));
   bitmap_layer_set_compositing_mode(s_charging_bitmap_layer, GCompOpSet );
   bitmap_layer_set_bitmap( s_charging_bitmap_layer, s_charging_bitmap ); 
   layer_add_child(s_main_layer, bitmap_layer_get_layer(s_charging_bitmap_layer));    
   // battery layer
   s_battery_bitmap=gbitmap_create_with_resource( RESOURCE_ID_ICON_BAT );
-  s_battery_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(66, 104), PBL_IF_ROUND_ELSE(160, 4), 18, 18));
+  s_battery_bitmap_layer = bitmap_layer_create(GRect(PBL_IF_ROUND_ELSE(160, 104), PBL_IF_ROUND_ELSE(100, 4), 18, 18));
   bitmap_layer_set_compositing_mode(s_battery_bitmap_layer, GCompOpSet );
   bitmap_layer_set_bitmap( s_battery_bitmap_layer, s_battery_bitmap ); 
   layer_add_child(s_main_layer, bitmap_layer_get_layer(s_battery_bitmap_layer));    
@@ -309,6 +350,8 @@ static void main_window_unload(Window *window) {
   if( s_bluetooth_bitmap_layer ) { bitmap_layer_destroy( s_bluetooth_bitmap_layer ); s_bluetooth_bitmap_layer=NULL; };
   if( s_charging_bitmap_layer ) { bitmap_layer_destroy( s_charging_bitmap_layer ); s_charging_bitmap_layer=NULL; };
   if( s_quiet_bitmap_layer ) { bitmap_layer_destroy( s_quiet_bitmap_layer ); s_quiet_bitmap_layer=NULL; };
+  fonts_unload_custom_font( s_note_font );
+  text_layer_destroy( s_note_text_layer );
   layer_destroy( s_main_layer ); 
   LOG( "end main window unload" );
 };

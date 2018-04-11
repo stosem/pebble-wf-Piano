@@ -1,4 +1,4 @@
-What is the sound of time?
+What is the sound of Time?
 Now you can see it.
 
 The first piano row is for showing hour. Bottom - minutes.
@@ -12,5 +12,7 @@ This face can also detect a watch status by showing icons:
 - d (eighth note) - quiet time.
 - # (diesis) - on low battery.
 - o (whole note) - on charging.
+
+From v.2.0 it has option for showing current notes (last screenshot).
 
 Support round and rectangle screen.

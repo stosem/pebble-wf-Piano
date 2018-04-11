@@ -30,6 +30,7 @@
         "enableMultiJS": true,
         "messageKeys": [
             "KEY_VIBRATE_ON_BT_LOST",
+            "KEY_SHOW_NOTE",
             "KEY_BATTERY_WARNING",
             "KEY_VIBRATE_INTERVAL"
         ],
@@ -66,6 +67,13 @@
                     "name": "ICON_BAT",
                     "targetPlatforms": null,
                     "type": "bitmap"
+                },
+                {
+                    "file": "fonts/MusiQwik3.ttf",
+                    "characterRegex": "[a-zA-Z&=]",
+                    "name": "NOTE_FONT_30",
+                    "targetPlatforms": null,
+                    "type": "font"
                 }
                        ]
         },
@@ -81,5 +89,5 @@
             "watchface": true
         }
     },
-    "version": "1.1.0"
+    "version": "2.0.0"
 }
